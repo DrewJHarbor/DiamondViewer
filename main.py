@@ -1,6 +1,15 @@
+import sys
+from PyQt5.QtWidgets import QApplication
+from diamond_viewer import DiamondViewerApp
+
 def main():
-    print("Hello from repl-nix-workspace!")
+    app = QApplication(sys.argv)
+    app.setStyle('Fusion')
+    
+    viewer = DiamondViewerApp()
+    viewer.show()
+    
+    sys.exit(app.exec_())
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
