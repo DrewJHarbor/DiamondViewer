@@ -37,6 +37,32 @@ The extended firmware supports **three control modes**:
    - Automatically enabled when Python app connects
    - Automatically returns to manual mode when Python app disconnects
 
+### Safety Features
+
+The extended firmware includes critical safety features to protect operators:
+
+1. **5-Second Timeout Watchdog**
+   - Automatically exits PC mode if no commands received for 5 seconds
+   - Protects against Python app crashes or unexpected disconnects
+   - All motors stop when timeout triggers
+
+2. **Physical Mode Exit (Emergency Recovery)**
+   - Press the joystick button to immediately exit PC mode
+   - Works even while Python app is connected
+   - Returns control to manual operation instantly
+   - Provides hardware-level safety override
+
+3. **Automatic Motor Stop**
+   - Motors stop on all mode transitions
+   - No runaway motor scenarios
+   - Clean handoff between control modes
+
+4. **Lighting Control Disabled**
+   - Python UI includes lighting slider but it does nothing
+   - Your hardware has no lighting control pins
+   - Prevents unsupported command errors
+   - Ready for future hardware upgrade
+
 ## Installation Steps
 
 ### Step 1: Upload Extended Arduino Firmware
