@@ -1,0 +1,51 @@
+DIAMOND VIEWER - WINDOWS DEPLOYMENT GUIDE
+==========================================
+
+QUICK START
+-----------
+1. Copy all files to your Windows PC (keep folder structure)
+2. Install Python 3.11 or higher from python.org
+3. Open Command Prompt and navigate to the project folder
+4. Run: pip install PyQt5 opencv-python pyserial
+5. Connect your USB cameras and Arduino
+6. Run: python main.py
+
+ARDUINO SETUP
+-------------
+1. Open arduino_example.ino in Arduino IDE
+2. Adjust pin numbers to match your wiring
+3. Upload to Arduino Mega 2560
+4. Note the COM port number (visible in Arduino IDE)
+
+FIRST RUN
+---------
+1. Launch the application: python main.py
+2. The cameras will initialize automatically
+3. Click "Refresh" to scan for COM ports
+4. Select your Arduino's COM port from the dropdown
+5. Click "Connect to Arduino"
+6. Test the controls:
+   - X/Y axis buttons to move rails
+   - Rotation buttons to rotate base
+   - Lighting slider to adjust brightness
+
+KEYBOARD SHORTCUTS
+------------------
+Space - Swap camera views
+F - Toggle fullscreen
+Esc - Exit fullscreen
+
+TROUBLESHOOTING
+---------------
+No cameras detected:
+  - Check USB connections
+  - Try swapping camera indices in Device Manager
+  - Restart the application
+
+Arduino won't connect:
+  - Verify COM port number
+  - Close other programs using the port
+  - Try clicking "Refresh"
+  - Manually type the COM port if needed
+
+For complete documentation, see README.md

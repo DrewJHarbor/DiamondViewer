@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from diamond_viewer import DiamondViewerApp
+from src.diamond_viewer import DiamondViewerApp
 
 def main():
     app = QApplication(sys.argv)

@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QComboBox, QMessageBox, QFrame)
 from PyQt5.QtCore import QTimer, Qt, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap, QPalette, QColor
-from camera_widget import CameraWidget
-from arduino_controller import ArduinoController
+from src.camera_widget import CameraWidget
+from src.arduino_controller import ArduinoController
 
 class DiamondViewerApp(QMainWindow):
     def __init__(self):

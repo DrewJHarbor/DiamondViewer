@@ -121,6 +121,20 @@ The application sends simple text commands over serial to control the hardware:
 - `LIGHT_<value>`: Set lighting intensity (0-100)
   - Example: `LIGHT_50` sets lighting to 50%
 
+## Project Structure
+
+```
+diamond-viewer/
+├── src/
+│   ├── diamond_viewer.py      # Main application window
+│   ├── camera_widget.py        # Camera display widgets
+│   └── arduino_controller.py   # Serial communication
+├── main.py                     # Application entry point
+├── arduino_example.ino         # Arduino firmware example
+├── README.md                   # This file
+└── replit.md                   # Development notes
+```
+
 ## Configuration
 
 ### Camera Indices
@@ -131,7 +145,10 @@ By default, cameras are assigned as:
 If your cameras are detected in a different order, you can swap them using the "Swap Cameras" feature.
 
 ### COM Port
-The Arduino connection uses standard serial communication at 9600 baud. Select the correct COM port from the dropdown menu before connecting.
+- The application automatically detects available COM ports on startup
+- Use the "Refresh" button to rescan if you plug in the Arduino after launching
+- The dropdown is editable for manual entry if auto-detection doesn't find your port
+- Serial communication uses 9600 baud rate
 
 ## Troubleshooting
 

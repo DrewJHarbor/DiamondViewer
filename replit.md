@@ -59,11 +59,11 @@ The Replit environment is used for **development only** - the code cannot run he
 
 To deploy this application to a Windows PC:
 
-1. **Copy all Python files** to the Windows machine:
+1. **Copy all files** to the Windows machine:
    - main.py
-   - diamond_viewer.py
-   - camera_widget.py
-   - arduino_controller.py
+   - src/ directory (with all .py files)
+   - arduino_example.ino (for Arduino firmware)
+   - README.md (for reference)
 
 2. **Install Python 3.11+** on Windows
 
@@ -108,6 +108,9 @@ To deploy this application to a Windows PC:
 ## Recent Changes
 - 2025-10-29: Initial development completed
   - Created dual-camera viewer with split-screen
-  - Implemented Arduino control interface
-  - Added dark theme UI
-  - Created documentation and Arduino example
+  - Implemented Arduino control interface with dynamic COM port discovery
+  - Added dark theme UI optimized for diamond viewing
+  - Created comprehensive documentation and Arduino example code
+  - Fixed: Dynamic port scanning with refresh capability
+  - Fixed: Manual COM port entry support when auto-detection fails
+  - Fixed: Improved connection error handling and user feedback
