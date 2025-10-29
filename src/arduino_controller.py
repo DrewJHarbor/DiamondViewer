@@ -12,7 +12,8 @@ class ArduinoController:
             self.serial_connection = serial.Serial(port, baudrate, timeout=1)
             time.sleep(2)
             self.connected = True
-            self.send_command("PING")
+            self.send_command("PC_MODE")
+            time.sleep(0.1)
             return True
         except Exception as e:
             print(f"Failed to connect to Arduino: {e}")
@@ -27,6 +28,8 @@ class ArduinoController:
     
     def disconnect(self):
         if self.serial_connection and self.serial_connection.is_open:
+            self.send_command("MANUAL_MODE")
+            time.sleep(0.1)
             self.serial_connection.close()
         self.connected = False
     
@@ -71,7 +74,7 @@ class ArduinoController:
         self.send_command("ROTATE_STOP")
     
     def set_lighting(self, intensity):
-        self.send_command(f"LIGHT_{intensity}")
+        pass
     
     @staticmethod
     def list_available_ports():
