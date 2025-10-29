@@ -12,8 +12,20 @@ class ArduinoController:
             self.serial_connection = serial.Serial(port, baudrate, timeout=1)
             time.sleep(2)
             self.connected = True
+            
+            # Clear any startup messages
+            while self.serial_connection.in_waiting > 0:
+                msg = self.serial_connection.readline().decode('utf-8').strip()
+                print(f"Arduino startup: {msg}")
+            
             self.send_command("PC_MODE")
-            time.sleep(0.1)
+            time.sleep(0.2)
+            
+            # Read response
+            if self.serial_connection.in_waiting > 0:
+                response = self.serial_connection.readline().decode('utf-8').strip()
+                print(f"Arduino response: {response}")
+            
             return True
         except Exception as e:
             print(f"Failed to connect to Arduino: {e}")
@@ -40,10 +52,13 @@ class ArduinoController:
         if self.is_connected():
             try:
                 self.serial_connection.write(f"{command}\n".encode())
+                print(f"Sent command: {command}")
                 return True
             except Exception as e:
                 print(f"Error sending command: {e}")
                 return False
+        else:
+            print(f"Cannot send '{command}' - not connected")
         return False
     
     def move_axis(self, axis, direction):
