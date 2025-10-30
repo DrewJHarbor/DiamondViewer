@@ -1,28 +1,27 @@
-# Diamond Viewer Control System
+# HARBOR Diamond Viewer
 
-A professional Windows desktop application for controlling a dual-camera Diamond Viewer system with Arduino-based hardware control.
+A simple, professional Windows application for viewing and inspecting diamonds with dual cameras and easy controls. Designed for non-technical operators.
 
 ## Features
 
 ### Camera System
-- **Dual Camera Support**: Displays two USB camera feeds simultaneously
-- **Split-Screen Layout**: View both cameras side-by-side
-- **Click-to-Fullscreen**: Click any camera view to expand it to fullscreen
-- **Quick Camera Swap**: Use the Space bar to swap camera views
-- **High-Quality Display**: Real-time video streaming optimized for diamond viewing
+- **Dual Camera Display**: See your diamond from top and side simultaneously
+- **Clear Views**: High-quality real-time video optimized for diamond inspection
+- **Switch Views**: Easy one-button camera swap
+- **Fullscreen Mode**: Click any view to see it larger
 
-### Hardware Control
-- **X-Axis Control**: Forward/backward movement for zoom camera rail
-- **Y-Axis Control**: Up/down movement for base height adjustment
-- **Rotation Control**: Clockwise/counter-clockwise rotation of the diamond base
-- **Lighting Control**: Adjustable lighting intensity (0-100%)
-- **Arduino Integration**: Serial communication with Arduino Mega 2560
+### Simple Controls
+- **One-Click Connection**: Just click "Connect System" - it finds your hardware automatically
+- **Zoom**: Large "In" and "Out" buttons to adjust camera distance
+- **Height**: "Up" and "Down" buttons to raise/lower the platform
+- **Rotation**: "Left" and "Right" buttons to rotate the diamond
+- **Manual Controls Work Too**: Your physical encoders and joystick still work while connected
 
-### User Interface
-- **Professional Dark Theme**: Optimized for viewing diamond details
-- **Intuitive Controls**: Easy-to-use buttons and sliders
-- **Real-time Status**: Connection status and position indicators
-- **Keyboard Shortcuts**: Quick access to common functions
+### Professional Interface
+- **Harbor Branding**: Clean, professional look with company logo
+- **Large Buttons**: Easy to see and use
+- **Clear Status**: Green when connected, red when disconnected
+- **Dark Theme**: Optimized for viewing diamond details
 
 ## Installation
 
@@ -57,12 +56,11 @@ python main.py
 ### Starting the Application
 
 1. Launch the application: `python main.py`
-2. The dual camera view will appear
-3. Connect to Arduino:
-   - The application automatically detects available COM ports
-   - Select the correct port from the dropdown (usually appears as COM3, COM4, etc.)
-   - If your Arduino doesn't appear, click the "Refresh" button to rescan
-   - The dropdown is editable, so you can manually type a port if needed
+2. You'll see the Harbor Diamond Viewer with dual camera views
+3. Click the big blue **"Connect System"** button
+   - The system automatically finds your hardware
+   - Button turns green when connected
+   - That's it! You're ready to use the controls
    - Click "Connect to Arduino"
    - Status should change to "Connected"
 

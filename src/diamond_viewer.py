@@ -10,7 +10,7 @@ from src.arduino_controller import ArduinoController
 class DiamondViewerApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Diamond Viewer Control System")
+        self.setWindowTitle("HARBOR Diamond Viewer")
         self.setGeometry(100, 100, 1400, 900)
         
         self.camera_top = None
@@ -38,10 +38,69 @@ class DiamondViewerApp(QMainWindow):
         
         camera_layout = QVBoxLayout()
         
-        title_label = QLabel("Diamond Viewer System")
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold; padding: 10px;")
-        camera_layout.addWidget(title_label)
+        # Harbor branding header
+        header_widget = QWidget()
+        header_layout = QVBoxLayout()
+        header_widget.setLayout(header_layout)
+        
+        # Company name with accent squares
+        brand_container = QWidget()
+        brand_layout = QHBoxLayout()
+        brand_layout.setContentsMargins(0, 10, 0, 10)
+        brand_container.setLayout(brand_layout)
+        
+        brand_layout.addStretch()
+        
+        # Harbor text
+        harbor_label = QLabel("HARBOR")
+        harbor_label.setAlignment(Qt.AlignCenter)
+        harbor_label.setStyleSheet("""
+            font-size: 48px; 
+            font-weight: bold; 
+            color: white;
+            letter-spacing: 8px;
+            padding: 0px;
+            margin: 0px;
+        """)
+        brand_layout.addWidget(harbor_label)
+        
+        # Colored accent squares
+        accent_container = QWidget()
+        accent_layout = QHBoxLayout()
+        accent_layout.setContentsMargins(10, 0, 0, 0)
+        accent_layout.setSpacing(2)
+        accent_container.setLayout(accent_layout)
+        
+        # Pink square
+        pink_square = QLabel()
+        pink_square.setFixedSize(15, 15)
+        pink_square.setStyleSheet("background-color: #E91E63; border-radius: 2px;")
+        accent_layout.addWidget(pink_square)
+        
+        # Purple square
+        purple_square = QLabel()
+        purple_square.setFixedSize(15, 15)
+        purple_square.setStyleSheet("background-color: #9C27B0; border-radius: 2px;")
+        accent_layout.addWidget(purple_square)
+        
+        # Blue square
+        blue_square = QLabel()
+        blue_square.setFixedSize(15, 15)
+        blue_square.setStyleSheet("background-color: #2196F3; border-radius: 2px;")
+        accent_layout.addWidget(blue_square)
+        
+        brand_layout.addWidget(accent_container)
+        brand_layout.addStretch()
+        
+        header_layout.addWidget(brand_container)
+        
+        # Subtitle
+        subtitle = QLabel("Diamond Viewer")
+        subtitle.setAlignment(Qt.AlignCenter)
+        subtitle.setStyleSheet("font-size: 18px; color: #AAA; padding: 5px;")
+        header_layout.addWidget(subtitle)
+        
+        camera_layout.addWidget(header_widget)
         
         self.camera_container = QWidget()
         self.split_layout = QVBoxLayout()
@@ -58,14 +117,39 @@ class DiamondViewerApp(QMainWindow):
         camera_layout.addWidget(self.camera_container)
         
         button_layout = QHBoxLayout()
-        self.swap_button = QPushButton("Swap Cameras (Space)")
+        
+        self.swap_button = QPushButton("🔄 Switch Views")
         self.swap_button.clicked.connect(self.swap_cameras)
-        self.swap_button.setMinimumHeight(40)
+        self.swap_button.setMinimumHeight(45)
+        self.swap_button.setStyleSheet("""
+            QPushButton {
+                font-size: 14px;
+                background-color: #424242;
+                color: white;
+                border-radius: 6px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #555;
+            }
+        """)
         button_layout.addWidget(self.swap_button)
         
-        self.fullscreen_button = QPushButton("Toggle Fullscreen (F)")
+        self.fullscreen_button = QPushButton("⛶ Fullscreen")
         self.fullscreen_button.clicked.connect(self.toggle_fullscreen_current)
-        self.fullscreen_button.setMinimumHeight(40)
+        self.fullscreen_button.setMinimumHeight(45)
+        self.fullscreen_button.setStyleSheet("""
+            QPushButton {
+                font-size: 14px;
+                background-color: #424242;
+                color: white;
+                border-radius: 6px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #555;
+            }
+        """)
         button_layout.addWidget(self.fullscreen_button)
         
         camera_layout.addLayout(button_layout)
@@ -80,122 +164,130 @@ class DiamondViewerApp(QMainWindow):
         control_layout = QVBoxLayout()
         control_widget.setLayout(control_layout)
         
-        header = QLabel("Hardware Controls")
-        header.setAlignment(Qt.AlignCenter)
-        header.setStyleSheet("font-size: 18px; font-weight: bold; padding: 10px;")
-        control_layout.addWidget(header)
+        control_layout.addSpacing(20)
         
-        arduino_group = QGroupBox("Arduino Connection")
-        arduino_layout = QVBoxLayout()
+        # Simplified connection section
+        self.connect_button = QPushButton("🔌 Connect System")
+        self.connect_button.clicked.connect(self.toggle_arduino_connection)
+        self.connect_button.setMinimumHeight(50)
+        self.connect_button.setStyleSheet("""
+            QPushButton {
+                font-size: 16px;
+                font-weight: bold;
+                background-color: #2196F3;
+                color: white;
+                border-radius: 8px;
+                padding: 10px;
+            }
+            QPushButton:hover {
+                background-color: #1976D2;
+            }
+        """)
+        control_layout.addWidget(self.connect_button)
         
-        port_layout = QHBoxLayout()
-        port_layout.addWidget(QLabel("COM Port:"))
+        self.connection_status = QLabel("● Not Connected")
+        self.connection_status.setAlignment(Qt.AlignCenter)
+        self.connection_status.setStyleSheet("""
+            font-size: 14px;
+            padding: 10px;
+            color: #E53935;
+            font-weight: bold;
+        """)
+        control_layout.addWidget(self.connection_status)
+        
+        control_layout.addSpacing(20)
+        
+        # Port combo (hidden by default, shown only if needed)
         self.port_combo = QComboBox()
         self.port_combo.setEditable(True)
-        port_layout.addWidget(self.port_combo)
+        self.port_combo.setVisible(False)
         
-        self.refresh_ports_button = QPushButton("Refresh")
-        self.refresh_ports_button.clicked.connect(self.refresh_serial_ports)
-        port_layout.addWidget(self.refresh_ports_button)
-        arduino_layout.addLayout(port_layout)
+        # Simplified control labels with larger buttons
+        button_style = """
+            QPushButton {
+                font-size: 14px;
+                font-weight: bold;
+                background-color: #424242;
+                color: white;
+                border: 2px solid #555;
+                border-radius: 8px;
+                padding: 15px;
+                min-height: 50px;
+            }
+            QPushButton:hover {
+                background-color: #555;
+                border-color: #777;
+            }
+            QPushButton:pressed {
+                background-color: #2196F3;
+                border-color: #2196F3;
+            }
+        """
         
-        self.connect_button = QPushButton("Connect to Arduino")
-        self.connect_button.clicked.connect(self.toggle_arduino_connection)
-        arduino_layout.addWidget(self.connect_button)
-        
-        self.connection_status = QLabel("Status: Disconnected")
-        self.connection_status.setAlignment(Qt.AlignCenter)
-        self.connection_status.setStyleSheet("padding: 5px; background-color: #8B0000; border-radius: 3px;")
-        arduino_layout.addWidget(self.connection_status)
-        
-        arduino_group.setLayout(arduino_layout)
-        control_layout.addWidget(arduino_group)
-        
-        x_axis_group = QGroupBox("X-Axis (Zoom Camera Rail)")
-        x_layout = QVBoxLayout()
+        # Zoom Control
+        zoom_label = QLabel("🔍 Zoom")
+        zoom_label.setAlignment(Qt.AlignCenter)
+        zoom_label.setStyleSheet("font-size: 16px; font-weight: bold; padding: 15px 5px 5px 5px; color: #AAA;")
+        control_layout.addWidget(zoom_label)
         
         x_buttons = QHBoxLayout()
-        self.x_back_button = QPushButton("◄◄ Back")
+        self.x_back_button = QPushButton("◀ Out")
+        self.x_back_button.setStyleSheet(button_style)
         self.x_back_button.pressed.connect(lambda: self.move_axis('X', -1))
         self.x_back_button.released.connect(lambda: self.stop_axis('X'))
         x_buttons.addWidget(self.x_back_button)
         
-        self.x_forward_button = QPushButton("Forward ►►")
+        self.x_forward_button = QPushButton("In ▶")
+        self.x_forward_button.setStyleSheet(button_style)
         self.x_forward_button.pressed.connect(lambda: self.move_axis('X', 1))
         self.x_forward_button.released.connect(lambda: self.stop_axis('X'))
         x_buttons.addWidget(self.x_forward_button)
         
-        x_layout.addLayout(x_buttons)
+        control_layout.addLayout(x_buttons)
+        control_layout.addSpacing(15)
         
-        self.x_position_label = QLabel("Position: 0")
-        self.x_position_label.setAlignment(Qt.AlignCenter)
-        x_layout.addWidget(self.x_position_label)
-        
-        x_axis_group.setLayout(x_layout)
-        control_layout.addWidget(x_axis_group)
-        
-        y_axis_group = QGroupBox("Y-Axis (Base Height)")
-        y_layout = QVBoxLayout()
+        # Height Control
+        height_label = QLabel("↕️ Height")
+        height_label.setAlignment(Qt.AlignCenter)
+        height_label.setStyleSheet("font-size: 16px; font-weight: bold; padding: 5px; color: #AAA;")
+        control_layout.addWidget(height_label)
         
         y_buttons = QHBoxLayout()
-        self.y_down_button = QPushButton("▼▼ Down")
+        self.y_down_button = QPushButton("▼ Down")
+        self.y_down_button.setStyleSheet(button_style)
         self.y_down_button.pressed.connect(lambda: self.move_axis('Y', -1))
         self.y_down_button.released.connect(lambda: self.stop_axis('Y'))
         y_buttons.addWidget(self.y_down_button)
         
-        self.y_up_button = QPushButton("Up ▲▲")
+        self.y_up_button = QPushButton("Up ▲")
+        self.y_up_button.setStyleSheet(button_style)
         self.y_up_button.pressed.connect(lambda: self.move_axis('Y', 1))
         self.y_up_button.released.connect(lambda: self.stop_axis('Y'))
         y_buttons.addWidget(self.y_up_button)
         
-        y_layout.addLayout(y_buttons)
+        control_layout.addLayout(y_buttons)
+        control_layout.addSpacing(15)
         
-        self.y_position_label = QLabel("Position: 0")
-        self.y_position_label.setAlignment(Qt.AlignCenter)
-        y_layout.addWidget(self.y_position_label)
-        
-        y_axis_group.setLayout(y_layout)
-        control_layout.addWidget(y_axis_group)
-        
-        rotation_group = QGroupBox("Rotation")
-        rotation_layout = QVBoxLayout()
+        # Rotation Control
+        rotation_label = QLabel("🔄 Rotation")
+        rotation_label.setAlignment(Qt.AlignCenter)
+        rotation_label.setStyleSheet("font-size: 16px; font-weight: bold; padding: 5px; color: #AAA;")
+        control_layout.addWidget(rotation_label)
         
         rotation_buttons = QHBoxLayout()
-        self.rotate_ccw_button = QPushButton("↶ CCW")
+        self.rotate_ccw_button = QPushButton("↶ Left")
+        self.rotate_ccw_button.setStyleSheet(button_style)
         self.rotate_ccw_button.pressed.connect(lambda: self.rotate(-1))
         self.rotate_ccw_button.released.connect(self.stop_rotation)
         rotation_buttons.addWidget(self.rotate_ccw_button)
         
-        self.rotate_cw_button = QPushButton("CW ↷")
+        self.rotate_cw_button = QPushButton("Right ↷")
+        self.rotate_cw_button.setStyleSheet(button_style)
         self.rotate_cw_button.pressed.connect(lambda: self.rotate(1))
         self.rotate_cw_button.released.connect(self.stop_rotation)
         rotation_buttons.addWidget(self.rotate_cw_button)
         
-        rotation_layout.addLayout(rotation_buttons)
-        
-        self.rotation_label = QLabel("Angle: 0°")
-        self.rotation_label.setAlignment(Qt.AlignCenter)
-        rotation_layout.addWidget(self.rotation_label)
-        
-        rotation_group.setLayout(rotation_layout)
-        control_layout.addWidget(rotation_group)
-        
-        lighting_group = QGroupBox("Lighting Control")
-        lighting_layout = QVBoxLayout()
-        
-        self.lighting_slider = QSlider(Qt.Horizontal)
-        self.lighting_slider.setMinimum(0)
-        self.lighting_slider.setMaximum(100)
-        self.lighting_slider.setValue(50)
-        self.lighting_slider.valueChanged.connect(self.update_lighting)
-        lighting_layout.addWidget(self.lighting_slider)
-        
-        self.lighting_label = QLabel("Intensity: 50%")
-        self.lighting_label.setAlignment(Qt.AlignCenter)
-        lighting_layout.addWidget(self.lighting_label)
-        
-        lighting_group.setLayout(lighting_layout)
-        control_layout.addWidget(lighting_group)
+        control_layout.addLayout(rotation_buttons)
         
         control_layout.addStretch()
         
@@ -276,27 +368,68 @@ class DiamondViewerApp(QMainWindow):
     def toggle_arduino_connection(self):
         if self.arduino.is_connected():
             self.arduino.disconnect()
-            self.heartbeat_timer.stop()  # Stop heartbeat when disconnecting
-            self.connect_button.setText("Connect to Arduino")
-            self.connection_status.setText("Status: Disconnected")
-            self.connection_status.setStyleSheet("padding: 5px; background-color: #8B0000; border-radius: 3px;")
+            self.heartbeat_timer.stop()
+            self.connect_button.setText("🔌 Connect System")
+            self.connect_button.setStyleSheet("""
+                QPushButton {
+                    font-size: 16px;
+                    font-weight: bold;
+                    background-color: #2196F3;
+                    color: white;
+                    border-radius: 8px;
+                    padding: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #1976D2;
+                }
+            """)
+            self.connection_status.setText("● Not Connected")
+            self.connection_status.setStyleSheet("""
+                font-size: 14px;
+                padding: 10px;
+                color: #E53935;
+                font-weight: bold;
+            """)
         else:
-            port = self.port_combo.currentText().strip()
+            # Auto-detect Arduino port
+            port = ArduinoController.find_arduino_port()
+            
             if not port:
-                QMessageBox.warning(self, "No Port Selected", 
-                                  "Please enter a COM port (e.g., COM3) or click 'Refresh' to scan for available ports.")
-                return
+                # Fallback to any available port
+                ports = ArduinoController.list_available_ports()
+                if ports:
+                    port = ports[0]
+                else:
+                    QMessageBox.warning(self, "No Device Found", 
+                                      "Cannot find the system hardware.\n\nPlease check:\n• System is plugged in via USB\n• Drivers are installed")
+                    return
             
             if self.arduino.connect(port):
-                self.connect_button.setText("Disconnect")
-                self.connection_status.setText(f"Status: Connected ({port})")
-                self.connection_status.setStyleSheet("padding: 5px; background-color: #006400; border-radius: 3px;")
-                self.heartbeat_timer.start(self.heartbeat_interval)  # Start heartbeat when connected
+                self.connect_button.setText("✓ Disconnect")
+                self.connect_button.setStyleSheet("""
+                    QPushButton {
+                        font-size: 16px;
+                        font-weight: bold;
+                        background-color: #4CAF50;
+                        color: white;
+                        border-radius: 8px;
+                        padding: 10px;
+                    }
+                    QPushButton:hover {
+                        background-color: #388E3C;
+                    }
+                """)
+                self.connection_status.setText(f"● Connected")
+                self.connection_status.setStyleSheet("""
+                    font-size: 14px;
+                    padding: 10px;
+                    color: #4CAF50;
+                    font-weight: bold;
+                """)
+                self.heartbeat_timer.start(self.heartbeat_interval)
             else:
-                self.connection_status.setText("Status: Connection failed")
-                self.connection_status.setStyleSheet("padding: 5px; background-color: #8B0000; border-radius: 3px;")
                 QMessageBox.warning(self, "Connection Error", 
-                                  f"Failed to connect to Arduino on {port}\n\nPlease check:\n- Arduino is plugged in\n- Correct COM port selected\n- No other program is using the port")
+                                  f"Could not connect to the system.\n\nPlease check:\n• System is powered on\n• USB cable is connected\n• No other program is using the system")
     
     def send_heartbeat(self):
         """Send periodic PING command to keep Arduino connection alive"""
