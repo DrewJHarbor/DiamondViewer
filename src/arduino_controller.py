@@ -93,5 +93,25 @@ class ArduinoController:
     
     @staticmethod
     def list_available_ports():
+        """List all available COM ports"""
         ports = serial.tools.list_ports.comports()
         return [port.device for port in ports]
+    
+    @staticmethod
+    def find_arduino_port():
+        """Auto-detect Arduino COM port by searching for Arduino devices"""
+        ports = serial.tools.list_ports.comports()
+        
+        # Look for Arduino in the port description
+        for port in ports:
+            # Check if port description contains "Arduino" or "Mega"
+            if port.description and ('Arduino' in port.description or 'Mega' in port.description):
+                print(f"Found Arduino: {port.device} - {port.description}")
+                return port.device
+            # Also check manufacturer
+            if port.manufacturer and 'Arduino' in port.manufacturer:
+                print(f"Found Arduino: {port.device} - {port.manufacturer}")
+                return port.device
+        
+        print("No Arduino auto-detected")
+        return None

@@ -128,35 +128,32 @@ void loop() {
     stopAllMotors();
   }
 
-  // Check for joystick button press to toggle modes
+  // Check for joystick button press
   if (digitalRead(JOYSTICK_PRESS) == LOW) {
     delay(50);
     if (digitalRead(JOYSTICK_PRESS) == LOW) {
-      // If in PC mode, exit to manual control
-      if (pcControlMode) {
-        pcControlMode = false;
+      // Toggle between encoder and joystick manual modes
+      bool previousMode = useJoystick;
+      useJoystick = !useJoystick;
+      Serial.println(useJoystick ? "Joystick Control Mode" : "Encoder Control Mode");
+      
+      if(previousMode && !useJoystick){
         stopAllMotors();
-        Serial.println("Exiting PC Control Mode - Manual Control Enabled");
-      } else {
-        // Toggle between encoder and joystick modes
-        bool previousMode = useJoystick;
-        useJoystick = !useJoystick;
-        Serial.println(useJoystick ? "Joystick Control Mode" : "Encoder Control Mode");
-        
-        if(previousMode && !useJoystick){
-          stopAllMotors();
-          resetAllEncoders();
-        }
+        resetAllEncoders();
       }
+      
       while(digitalRead(JOYSTICK_PRESS) == LOW);
     }
   }
 
-  // Execute control based on mode
+  // Execute control - Manual controls always work, PC commands run alongside
   if (pcControlMode) {
     // PC Control Mode: Execute PC commands
     executePCControl();
-  } else if (useJoystick) {
+  }
+  
+  // Manual controls always active (can override PC control)
+  if (useJoystick) {
     // Manual Joystick Mode
     joystick_check();
   } else {

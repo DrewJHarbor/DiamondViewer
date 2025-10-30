@@ -249,12 +249,25 @@ class DiamondViewerApp(QMainWindow):
     
     def refresh_serial_ports(self):
         available_ports = ArduinoController.list_available_ports()
+        arduino_port = ArduinoController.find_arduino_port()  # Auto-detect Arduino
         self.port_combo.clear()
         
         if available_ports:
             self.port_combo.addItems(available_ports)
-            self.connection_status.setText(f"Status: {len(available_ports)} port(s) found")
-            self.connection_status.setStyleSheet("padding: 5px; background-color: #555; border-radius: 3px;")
+            
+            # Auto-select Arduino if found
+            if arduino_port:
+                index = self.port_combo.findText(arduino_port)
+                if index >= 0:
+                    self.port_combo.setCurrentIndex(index)
+                    self.connection_status.setText(f"Status: Arduino auto-detected on {arduino_port}")
+                    self.connection_status.setStyleSheet("padding: 5px; background-color: #006400; border-radius: 3px;")
+                else:
+                    self.connection_status.setText(f"Status: {len(available_ports)} port(s) found")
+                    self.connection_status.setStyleSheet("padding: 5px; background-color: #555; border-radius: 3px;")
+            else:
+                self.connection_status.setText(f"Status: {len(available_ports)} port(s) found - Select Arduino")
+                self.connection_status.setStyleSheet("padding: 5px; background-color: #555; border-radius: 3px;")
         else:
             self.port_combo.setPlaceholderText("Enter COM port manually (e.g., COM3)")
             self.connection_status.setText("Status: No ports detected - Enter manually")

@@ -21,21 +21,24 @@ Your hardware uses three stepper motors controlled by the Arduino Mega 2560:
 
 ### Control Modes
 
-The extended firmware supports **three control modes**:
+The extended firmware supports **hybrid control** - manual and PC controls work simultaneously:
 
 1. **Encoder Mode** (Manual - Default)
    - Control motors using the three rotary encoders
    - Fine-grained position control
    - Press encoder buttons to change sensitivity
+   - **Works even when PC is connected**
 
 2. **Joystick Mode** (Manual)
    - Control motors using the analog joystick
    - Press joystick button to toggle between Encoder/Joystick modes
+   - **Works even when PC is connected**
 
 3. **PC Control Mode** (Remote)
    - Control motors via Python application over serial
    - Automatically enabled when Python app connects
-   - Automatically returns to manual mode when Python app disconnects
+   - **Manual controls remain active** - you can use both!
+   - Disconnect from software UI when done with PC control
 
 ### Safety Features
 
@@ -100,7 +103,8 @@ The extended firmware includes critical safety features to protect operators:
 
 2. **Connect to Arduino**:
    - Click "Refresh" to scan for COM ports
-   - Select your Arduino's COM port
+   - **Arduino is auto-detected and selected automatically!**
+   - If not auto-detected, manually select your Arduino's COM port
    - Click "Connect to Arduino"
    - The Arduino will automatically switch to PC Control Mode
 
@@ -108,6 +112,7 @@ The extended firmware includes critical safety features to protect operators:
    - Try the X-axis forward/backward buttons
    - Try the Y-axis up/down buttons
    - Try the rotation clockwise/counter-clockwise buttons
+   - **While connected, try using encoders/joystick - they work too!**
 
 4. **Disconnect when done**:
    - Click "Disconnect" in the Python app
