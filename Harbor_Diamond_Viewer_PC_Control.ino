@@ -87,7 +87,7 @@ int motor1Direction = 0;        // NEW: Motor directions (1=forward, -1=backward
 int motor2Direction = 0;
 int motor3Direction = 0;
 unsigned long lastPCCommand = 0;  // NEW: Timestamp of last PC command
-const unsigned long PC_TIMEOUT = 5000;  // NEW: 5 second timeout
+const unsigned long PC_TIMEOUT = 30000;  // NEW: 30 second timeout (increased for normal operation)
 
 //---
 // Setup function
@@ -272,6 +272,12 @@ void processCommand(String cmd) {
     Serial.print(motor2Moving);
     Serial.print(",M3:");
     Serial.println(motor3Moving);
+  }
+  
+  // Keepalive / Ping command (does nothing but reset timeout)
+  else if (cmd == "PING") {
+    // Timer already reset at start of processCommand()
+    // No response needed for keepalive
   }
   
   else {

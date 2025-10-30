@@ -20,6 +20,11 @@ class DiamondViewerApp(QMainWindow):
         
         self.arduino = ArduinoController()
         
+        # Heartbeat timer to keep connection alive
+        self.heartbeat_timer = QTimer()
+        self.heartbeat_timer.timeout.connect(self.send_heartbeat)
+        self.heartbeat_interval = 15000  # 15 seconds
+        
         self.init_ui()
         self.apply_dark_theme()
         self.init_cameras()
@@ -258,6 +263,7 @@ class DiamondViewerApp(QMainWindow):
     def toggle_arduino_connection(self):
         if self.arduino.is_connected():
             self.arduino.disconnect()
+            self.heartbeat_timer.stop()  # Stop heartbeat when disconnecting
             self.connect_button.setText("Connect to Arduino")
             self.connection_status.setText("Status: Disconnected")
             self.connection_status.setStyleSheet("padding: 5px; background-color: #8B0000; border-radius: 3px;")
@@ -272,11 +278,17 @@ class DiamondViewerApp(QMainWindow):
                 self.connect_button.setText("Disconnect")
                 self.connection_status.setText(f"Status: Connected ({port})")
                 self.connection_status.setStyleSheet("padding: 5px; background-color: #006400; border-radius: 3px;")
+                self.heartbeat_timer.start(self.heartbeat_interval)  # Start heartbeat when connected
             else:
                 self.connection_status.setText("Status: Connection failed")
                 self.connection_status.setStyleSheet("padding: 5px; background-color: #8B0000; border-radius: 3px;")
                 QMessageBox.warning(self, "Connection Error", 
                                   f"Failed to connect to Arduino on {port}\n\nPlease check:\n- Arduino is plugged in\n- Correct COM port selected\n- No other program is using the port")
+    
+    def send_heartbeat(self):
+        """Send periodic PING command to keep Arduino connection alive"""
+        if self.arduino.is_connected():
+            self.arduino.send_command("PING")
     
     def move_axis(self, axis, direction):
         self.arduino.move_axis(axis, direction)
