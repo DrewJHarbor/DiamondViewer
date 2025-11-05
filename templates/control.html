@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HARBOR Control</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            touch-action: manipulation;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #444;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        
+        .accent-squares {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .accent-square {
+            width: 15px;
+            height: 15px;
+            border-radius: 2px;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .status.connected {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+        }
+        
+        .status.disconnected {
+            background: rgba(229, 57, 53, 0.2);
+            border: 2px solid #E53935;
+        }
+        
+        .control-group {
+            margin-bottom: 40px;
+        }
+        
+        .control-group h2 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #AAA;
+        }
+        
+        .button-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .control-btn {
+            background: #424242;
+            color: white;
+            border: 3px solid #555;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.1s;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        .control-btn:active {
+            background: #2196F3;
+            border-color: #2196F3;
+            transform: scale(0.95);
+        }
+        
+        .control-btn.auto-active {
+            background: #4CAF50;
+            border-color: #388E3C;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .double-tap-hint {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HARBOR</h1>
+        <div class="accent-squares">
+            <div class="accent-square" style="background: #E91E63;"></div>
+            <div class="accent-square" style="background: #9C27B0;"></div>
+            <div class="accent-square" style="background: #2196F3;"></div>
+        </div>
+    </div>
+    
+    <div id="status" class="status disconnected">
+        ● Connecting...
+    </div>
+    
+    <div class="control-group">
+        <h2>🔍 Zoom</h2>
+        <div class="button-row">
+            <button class="control-btn" id="zoom-out">◀ Out</button>
+            <button class="control-btn" id="zoom-in">In ▶</button>
+        </div>
+    </div>
+    
+    <div class="control-group">
+        <h2>↕️ Height</h2>
+        <div class="button-row">
+            <button class="control-btn" id="height-down">▼ Down</button>
+            <button class="control-btn" id="height-up">Up ▲</button>
+        </div>
+    </div>
+    
+    <div class="control-group">
+        <h2>🔄 Rotation</h2>
+        <div class="button-row">
+            <button class="control-btn" id="rotate-left">↶ Left</button>
+            <button class="control-btn" id="rotate-right">Right ↷</button>
+        </div>
+        <div class="double-tap-hint">
+            Double-tap for continuous rotation
+        </div>
+    </div>
+    
+    <div class="footer">
+        HARBOR Diamond Viewer Control
+    </div>
+    
+    <script>
+        const socket = io();
+        
+        let arduinoConnected = false;
+        let autoRotationActive = false;
+        
+        // Double-tap detection
+        let lastTapTime = 0;
+        const doubleTapDelay = 300; // ms
+        
+        // Status updates
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            updateStatus('Connecting to hardware...', false);
+            socket.emit('arduino_connect');
+        });
+        
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+            updateStatus('Disconnected', false);
+        });
+        
+        socket.on('arduino_status', (data) => {
+            arduinoConnected = data.connected;
+            if (data.connected) {
+                updateStatus(`Connected`, true);
+            } else {
+                updateStatus('Hardware not connected', false);
+            }
+        });
+        
+        socket.on('status', (data) => {
+            arduinoConnected = data.arduino_connected;
+            autoRotationActive = data.auto_rotation;
+            updateStatus(arduinoConnected ? 'Connected' : 'Not Connected', arduinoConnected);
+        });
+        
+        socket.on('auto_rotation_status', (data) => {
+            autoRotationActive = data.active;
+            updateAutoRotationUI();
+        });
+        
+        function updateStatus(message, connected) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = `● ${message}`;
+            statusEl.className = connected ? 'status connected' : 'status disconnected';
+        }
+        
+        function updateAutoRotationUI() {
+            document.getElementById('rotate-left').classList.toggle('auto-active', autoRotationActive);
+            document.getElementById('rotate-right').classList.toggle('auto-active', autoRotationActive);
+        }
+        
+        // Zoom controls
+        document.getElementById('zoom-out').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            socket.emit('move_axis', { axis: 'X', direction: -1 });
+        });
+        
+        document.getElementById('zoom-out').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            socket.emit('stop_axis', { axis: 'X' });
+        });
+        
+        document.getElementById('zoom-in').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            socket.emit('move_axis', { axis: 'X', direction: 1 });
+        });
+        
+        document.getElementById('zoom-in').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            socket.emit('stop_axis', { axis: 'X' });
+        });
+        
+        // Height controls
+        document.getElementById('height-down').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            socket.emit('move_axis', { axis: 'Y', direction: -1 });
+        });
+        
+        document.getElementById('height-down').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            socket.emit('stop_axis', { axis: 'Y' });
+        });
+        
+        document.getElementById('height-up').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            socket.emit('move_axis', { axis: 'Y', direction: 1 });
+        });
+        
+        document.getElementById('height-up').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            socket.emit('stop_axis', { axis: 'Y' });
+        });
+        
+        // Rotation controls with double-tap detection
+        function handleRotationTap(direction) {
+            const currentTime = Date.now();
+            const timeSinceLastTap = currentTime - lastTapTime;
+            
+            if (timeSinceLastTap < doubleTapDelay) {
+                // Double tap detected - start auto-rotation
+                socket.emit('auto_rotate', { direction: direction });
+                autoRotationActive = true;
+                updateAutoRotationUI();
+            } else {
+                // Single tap - stop any auto-rotation, start manual rotation
+                if (autoRotationActive) {
+                    socket.emit('stop_rotation');
+                    autoRotationActive = false;
+                    updateAutoRotationUI();
+                }
+                socket.emit('rotate', { direction: direction });
+            }
+            
+            lastTapTime = currentTime;
+        }
+        
+        document.getElementById('rotate-left').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleRotationTap(-1);
+        });
+        
+        document.getElementById('rotate-left').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!autoRotationActive) {
+                socket.emit('stop_rotation');
+            }
+        });
+        
+        document.getElementById('rotate-right').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleRotationTap(1);
+        });
+        
+        document.getElementById('rotate-right').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!autoRotationActive) {
+                socket.emit('stop_rotation');
+            }
+        });
+        
+        // Heartbeat to keep connection alive
+        setInterval(() => {
+            if (arduinoConnected) {
+                socket.emit('heartbeat');
+            }
+        }, 15000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HARBOR Diamond Video</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        
+        .accent-squares {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .accent-square {
+            width: 15px;
+            height: 15px;
+            border-radius: 2px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #AAA;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #CCC;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #555;
+            border-radius: 10px;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2196F3;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .form-group input::placeholder {
+            color: #777;
+        }
+        
+        .delivery-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .delivery-option {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #555;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .delivery-option.active {
+            background: #2196F3;
+            border-color: #2196F3;
+        }
+        
+        .delivery-option:hover {
+            border-color: #777;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #E91E63, #9C27B0);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(233, 30, 99, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .submit-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .message.error {
+            background: rgba(229, 57, 53, 0.2);
+            border: 2px solid #E53935;
+            color: #E53935;
+        }
+        
+        .message.info {
+            background: rgba(33, 150, 243, 0.2);
+            border: 2px solid #2196F3;
+            color: #2196F3;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #2196F3;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>HARBOR</h1>
+            <div class="accent-squares">
+                <div class="accent-square" style="background: #E91E63;"></div>
+                <div class="accent-square" style="background: #9C27B0;"></div>
+                <div class="accent-square" style="background: #2196F3;"></div>
+            </div>
+        </div>
+        
+        <div class="subtitle">
+            Receive Your Diamond Video
+        </div>
+        
+        <form id="shareForm">
+            <div class="delivery-options">
+                <div class="delivery-option active" data-method="email">
+                    📧 Email
+                </div>
+                <div class="delivery-option" data-method="sms">
+                    💬 SMS
+                </div>
+                <div class="delivery-option" data-method="both">
+                    Both
+                </div>
+            </div>
+            
+            <div class="form-group" id="emailGroup">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+            </div>
+            
+            <div class="form-group" id="phoneGroup" style="display: none;">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567">
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submitBtn">
+                📤 Send My Video
+            </button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px;">Recording and processing your video...</p>
+        </div>
+        
+        <div class="message" id="message"></div>
+    </div>
+    
+    <script>
+        let deliveryMethod = 'email';
+        
+        // Delivery method selection
+        document.querySelectorAll('.delivery-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.delivery-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                deliveryMethod = this.dataset.method;
+                
+                const emailGroup = document.getElementById('emailGroup');
+                const phoneGroup = document.getElementById('phoneGroup');
+                const emailInput = document.getElementById('email');
+                const phoneInput = document.getElementById('phone');
+                
+                if (deliveryMethod === 'email') {
+                    emailGroup.style.display = 'block';
+                    phoneGroup.style.display = 'none';
+                    emailInput.required = true;
+                    phoneInput.required = false;
+                } else if (deliveryMethod === 'sms') {
+                    emailGroup.style.display = 'none';
+                    phoneGroup.style.display = 'block';
+                    emailInput.required = false;
+                    phoneInput.required = true;
+                } else {
+                    emailGroup.style.display = 'block';
+                    phoneGroup.style.display = 'block';
+                    emailInput.required = true;
+                    phoneInput.required = true;
+                }
+            });
+        });
+        
+        // Form submission
+        document.getElementById('shareForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const message = document.getElementById('message');
+            
+            // Validate inputs
+            if (deliveryMethod === 'email' || deliveryMethod === 'both') {
+                if (!email || !email.includes('@')) {
+                    showMessage('Please enter a valid email address', 'error');
+                    return;
+                }
+            }
+            
+            if (deliveryMethod === 'sms' || deliveryMethod === 'both') {
+                if (!phone) {
+                    showMessage('Please enter a phone number', 'error');
+                    return;
+                }
+            }
+            
+            // Show loading
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            message.style.display = 'none';
+            
+            try {
+                // Step 1: Start video recording
+                const sessionId = Date.now().toString();
+                const recordResponse = await fetch('/api/video/record', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId })
+                });
+                
+                if (!recordResponse.ok) {
+                    throw new Error('Failed to start recording');
+                }
+                
+                // Wait for recording to complete (30 seconds + processing)
+                await new Promise(resolve => setTimeout(resolve, 32000));
+                
+                // Step 2: Send video via email/SMS
+                const shareData = {
+                    session_id: sessionId,
+                    method: deliveryMethod,
+                    email: email,
+                    phone: phone
+                };
+                
+                // This endpoint will be implemented next with email/SMS integration
+                const shareResponse = await fetch('/api/share', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(shareData)
+                });
+                
+                if (shareResponse.ok) {
+                    const result = await shareResponse.json();
+                    showMessage(`✓ Success! Your diamond video has been sent to ${deliveryMethod === 'email' ? 'your email' : deliveryMethod === 'sms' ? 'your phone' : 'your email and phone'}.`, 'success');
+                    
+                    // Reset form after 3 seconds
+                    setTimeout(() => {
+                        document.getElementById('shareForm').reset();
+                        message.style.display = 'none';
+                    }, 5000);
+                } else {
+                    throw new Error('Failed to send video');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Sorry, something went wrong. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+        
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# HARBOR Diamond Viewer - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# GUI Framework
+PyQt5==5.15.10
+
+# Computer Vision & Image Processing
+opencv-python==4.9.0.80
+pillow==12.0.0
+
+# QR Code Generation
+qrcode==8.2
+
+# Serial Communication (Arduino)
+pyserial==3.5
+
+# Web Server & Wireless Control
+Flask==3.1.2
+Flask-SocketIO==5.5.1
+Flask-CORS==6.0.1
+python-socketio==5.14.3
+python-engineio==4.12.3
+eventlet==0.40.3  # Production-grade async server for Socket.IO
+
+# Numpy compatibility fix (OpenCV requires <2.0)
+numpy<2.0
+
+# Future integrations (optional - uncomment when ready)
+# sendgrid==6.11.0  # For email delivery
+# twilio==9.0.4  # For SMS delivery
+# pytesseract==0.3.10  # For GIA number OCR

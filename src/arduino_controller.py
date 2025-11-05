@@ -88,7 +88,19 @@ class ArduinoController:
     def stop_rotation(self):
         self.send_command("ROTATE_STOP")
     
+    def auto_rotate(self, direction):
+        """Start continuous auto-rotation (triggered by double-tap)"""
+        if direction > 0:
+            self.send_command("AUTO_ROTATE_CW")
+        else:
+            self.send_command("AUTO_ROTATE_CCW")
+    
+    def stop_auto_rotation(self):
+        """Stop auto-rotation"""
+        self.send_command("AUTO_ROTATE_STOP")
+    
     def set_lighting(self, intensity):
+        """Lighting control (for future hardware integration)"""
         pass
     
     @staticmethod
