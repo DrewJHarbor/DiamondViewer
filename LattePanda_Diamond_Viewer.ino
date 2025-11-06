@@ -44,7 +44,7 @@
 // Encoder Pins (using interrupt-capable pins on Leonardo)
 #define ENCODER_1_CHLA  2   // Rotation encoder
 #define ENCODER_1_CHLB  3
-#define ENCODER_2_CHLA  0   // X-axis encoder (Leonardo: pins 0,1,2,3 support interrupts)
+#define ENCODER_2_CHLA  0   // X-axis encoder (Leonardo: pins 0,1,2,3,7 support interrupts)
 #define ENCODER_2_CHLB  1
 #define ENCODER_3_CHLA  7   // Y-axis encoder
 #define ENCODER_3_CHLB  6
