@@ -12,7 +12,83 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QLabel, QPushButton)
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap, QFont
-from src.camera_widget import CameraWidget
+
+
+class CameraWidget(QWidget):
+    """Widget for displaying camera feed"""
+    
+    def __init__(self, camera_index=0, title="Camera"):
+        super().__init__()
+        self.camera_index = camera_index
+        self.title = title
+        self.camera = None
+        
+        self.init_ui()
+        self.init_camera()
+        
+    def init_ui(self):
+        """Initialize the UI components"""
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Camera display label
+        self.camera_label = QLabel()
+        self.camera_label.setAlignment(Qt.AlignCenter)
+        self.camera_label.setStyleSheet("background-color: #000000;")
+        self.camera_label.setScaledContents(True)
+        layout.addWidget(self.camera_label)
+        
+        # Timer for updating frames
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_frame)
+        
+    def init_camera(self):
+        """Initialize camera capture"""
+        try:
+            self.camera = cv2.VideoCapture(self.camera_index)
+            if self.camera.isOpened():
+                self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+                self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+                self.timer.start(33)  # ~30 FPS
+            else:
+                self.show_error(f"Camera {self.camera_index} not available")
+        except Exception as e:
+            self.show_error(f"Error opening camera: {str(e)}")
+    
+    def update_frame(self):
+        """Update camera frame"""
+        if self.camera and self.camera.isOpened():
+            ret, frame = self.camera.read()
+            if ret:
+                # Convert BGR to RGB
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                
+                # Convert to QImage
+                h, w, ch = frame.shape
+                bytes_per_line = ch * w
+                qt_image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                
+                # Display in label
+                pixmap = QPixmap.fromImage(qt_image)
+                self.camera_label.setPixmap(pixmap)
+    
+    def show_error(self, message):
+        """Show error message"""
+        self.camera_label.setText(f"{self.title}\n\n{message}")
+        self.camera_label.setStyleSheet("""
+            background-color: #1a1a1a;
+            color: #ff5252;
+            font-size: 16px;
+            padding: 20px;
+        """)
+    
+    def cleanup(self):
+        """Release camera resources"""
+        if self.timer.isActive():
+            self.timer.stop()
+        if self.camera:
+            self.camera.release()
+            self.camera = None
 
 
 class DisplayViewer(QMainWindow):
@@ -317,10 +393,11 @@ class DisplayViewer(QMainWindow):
     def resizeEvent(self, event):
         """Handle window resize to reposition QR codes"""
         super().resizeEvent(event)
-        if self.control_qr_visible:
+        # Safety check: only reposition if QR visibility flags exist
+        if hasattr(self, 'control_qr_visible') and self.control_qr_visible:
             self.toggle_control_qr()
             self.toggle_control_qr()
-        if self.share_qr_visible:
+        if hasattr(self, 'share_qr_visible') and self.share_qr_visible:
             self.toggle_share_qr()
             self.toggle_share_qr()
     
