@@ -55,30 +55,22 @@ echo [5/6] Setting up auto-start (Task Scheduler)...
 REM Get current directory
 set "CURRENT_DIR=%cd%"
 
-REM Create task for Display Viewer
+REM Delete old tasks (in case they existed from previous versions)
 schtasks /Delete /TN "HARBOR_DisplayViewer" /F >nul 2>&1
-schtasks /Create /TN "HARBOR_DisplayViewer" /TR "\"%CURRENT_DIR%\start_display.bat\"" /SC ONLOGON /RL HIGHEST /F
-if %errorLevel% neq 0 (
-    echo WARNING: Failed to create Display Viewer auto-start task
-) else (
-    echo ✓ Display Viewer auto-start configured
-)
-
-REM Create task for Web Server
 schtasks /Delete /TN "HARBOR_WebServer" /F >nul 2>&1
-schtasks /Create /TN "HARBOR_WebServer" /TR "\"%CURRENT_DIR%\start_webserver.bat\"" /SC ONLOGON /RL HIGHEST /F
+
+REM Create single task for integrated application
+schtasks /Create /TN "HARBOR_DiamondViewer" /TR "\"%CURRENT_DIR%\start_display.bat\"" /SC ONLOGON /RL HIGHEST /F
 if %errorLevel% neq 0 (
-    echo WARNING: Failed to create Web Server auto-start task
+    echo WARNING: Failed to create auto-start task
 ) else (
-    echo ✓ Web Server auto-start configured
+    echo ✓ Auto-start configured (display + web server integrated)
 )
 echo.
 
-echo [6/6] Starting applications...
-start "HARBOR Display Viewer" /MIN cmd /c "%CURRENT_DIR%\start_display.bat"
-timeout /t 3 /nobreak >nul
-start "HARBOR Web Server" /MIN cmd /c "%CURRENT_DIR%\start_webserver.bat"
-echo ✓ Applications started
+echo [6/6] Starting application...
+start "HARBOR Diamond Viewer" cmd /c "%CURRENT_DIR%\start_display.bat"
+echo ✓ Application started (display + web server)
 echo.
 
 echo ========================================
@@ -93,10 +85,11 @@ echo    - Click Upload
 echo.
 echo 2. Test the system:
 echo    - Display Viewer should be running fullscreen
+echo    - Web server runs automatically in background
 echo    - Scan QR code from your phone
 echo    - Control motors from mobile interface
 echo.
-echo 3. The system will auto-start on next boot
+echo 3. The system will auto-start on next boot (one app does everything)
 echo.
 echo For troubleshooting, see DEPLOYMENT_GUIDE.md
 echo.

@@ -1,13 +1,11 @@
 @echo off
-REM HARBOR Diamond Viewer - Display Viewer Launcher
-REM Auto-starts the fullscreen display with dual cameras
+REM HARBOR Diamond Viewer - Display Startup Script
+REM This script launches the fullscreen display viewer on Windows boot
+REM Place this in Windows Startup folder: shell:startup
 
-cd /d "%~dp0"
+cd /d %~dp0..
+python display_viewer.py
 
-echo Starting HARBOR Display Viewer...
-pythonw display_viewer.py
-
-REM If pythonw fails, try python
-if %errorLevel% neq 0 (
-    python display_viewer.py
-)
+REM If display crashes, wait and restart
+timeout /t 5
+goto :eof

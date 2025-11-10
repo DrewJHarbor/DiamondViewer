@@ -1,17 +1,28 @@
 """
 HARBOR Diamond Viewer - Display Only
 Fullscreen dual camera viewer with Harbor branding and toggleable QR codes
+Integrated with Flask web server for mobile control
 """
 
 import sys
 import cv2
 import socket
 import qrcode
+import threading
+import os
 from io import BytesIO
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QLabel, QPushButton)
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QImage, QPixmap, QFont
+
+# Import web server to run in background
+try:
+    from web_server import start_web_server
+    WEB_SERVER_AVAILABLE = True
+except ImportError:
+    WEB_SERVER_AVAILABLE = False
+    print("Warning: web_server.py not found - mobile control will not be available")
 
 
 class CameraWidget(QWidget):
@@ -415,9 +426,21 @@ class DisplayViewer(QMainWindow):
         """Cleanup on close"""
         self.top_camera_widget.release()
         self.side_camera_widget.release()
+        
+        # Web server will automatically stop when main thread exits
+        print("Shutting down HARBOR Diamond Viewer...")
 
 
 def main():
+    # Start web server in background thread
+    if WEB_SERVER_AVAILABLE:
+        web_server_thread = threading.Thread(target=start_web_server, daemon=True)
+        web_server_thread.start()
+        print("✓ Web server started in background")
+    else:
+        print("⚠ Web server not available - mobile control disabled")
+    
+    # Start PyQt5 display application
     app = QApplication(sys.argv)
     viewer = DisplayViewer()
     viewer.show()

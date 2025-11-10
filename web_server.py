@@ -12,6 +12,12 @@ from flask import Flask, render_template, request, jsonify, send_file
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from src.arduino_controller import ArduinoController
+from dotenv import load_dotenv
+from twilio.rest import Client
+import resend
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SESSION_SECRET', 'harbor-diamond-viewer-secret')
@@ -268,26 +274,107 @@ def share_video():
 
 
 def send_email(to_email, video_url, gia_number, session_id):
-    """Send email with video link and GIA number"""
-    # TODO: Integrate with SendGrid/Resend
-    # For now, just log the action
-    print(f"EMAIL to {to_email}: Video={video_url}, GIA={gia_number}")
-    
-    # Placeholder - will integrate with Replit email service in next task
-    pass
+    """Send email with video link and GIA number using Resend"""
+    try:
+        resend_api_key = os.getenv('RESEND_API_KEY')
+        email_from = os.getenv('EMAIL_FROM', 'noreply@harbordiamonds.com')
+        
+        if not resend_api_key:
+            print(f"⚠️  EMAIL to {to_email}: Video={video_url}, GIA={gia_number}")
+            print("⚠️  RESEND_API_KEY not configured - email not sent")
+            return
+        
+        # Configure Resend
+        resend.api_key = resend_api_key
+        
+        # Create email HTML
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%); color: white; padding: 30px; text-align: center; border-radius: 8px; }}
+                .content {{ padding: 30px; background: #f5f5f5; border-radius: 8px; margin-top: 20px; }}
+                .video-link {{ display: inline-block; background: #3949ab; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+                .gia-number {{ font-size: 24px; font-weight: bold; color: #1a237e; margin: 20px 0; }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🔷 HARBOR Diamond Viewer</h1>
+                <p>Your Diamond Video is Ready</p>
+            </div>
+            <div class="content">
+                <p class="gia-number">GIA Number: {gia_number}</p>
+                <p>Thank you for viewing your diamond at HARBOR. Your video is now available:</p>
+                <a href="{video_url}" class="video-link">📹 Watch Your Diamond Video</a>
+                <p><small>Video ID: {session_id}</small></p>
+                <p><small>This link will remain active for 30 days.</small></p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Send email
+        params = {
+            "from": email_from,
+            "to": [to_email],
+            "subject": f"Your Diamond Video - GIA {gia_number}",
+            "html": html_content,
+        }
+        
+        email_response = resend.Emails.send(params)
+        print(f"✅ EMAIL sent to {to_email}: Video={video_url}, GIA={gia_number}")
+        print(f"   Email ID: {email_response['id']}")
+        
+    except Exception as e:
+        print(f"❌ EMAIL ERROR: {e}")
+        print(f"   Failed to send to {to_email}")
 
 
 def send_sms(to_phone, video_url, gia_number):
-    """Send SMS with video link and GIA number"""
-    # TODO: Integrate with Twilio
-    # For now, just log the action
-    print(f"SMS to {to_phone}: Video={video_url}, GIA={gia_number}")
-    
-    # Placeholder - will integrate with Twilio in next task
-    pass
+    """Send SMS with video link and GIA number using Twilio"""
+    try:
+        account_sid = os.getenv('TWILIO_ACCOUNT_SID')
+        auth_token = os.getenv('TWILIO_AUTH_TOKEN')
+        from_phone = os.getenv('TWILIO_PHONE_NUMBER')
+        
+        if not all([account_sid, auth_token, from_phone]):
+            print(f"⚠️  SMS to {to_phone}: Video={video_url}, GIA={gia_number}")
+            print("⚠️  Twilio credentials not configured - SMS not sent")
+            return
+        
+        # Initialize Twilio client
+        client = Client(account_sid, auth_token)
+        
+        # Create SMS message
+        message_body = f"""HARBOR Diamond Viewer
+
+GIA: {gia_number}
+
+Watch your diamond video:
+{video_url}
+
+Thank you for visiting HARBOR"""
+        
+        # Send SMS
+        message = client.messages.create(
+            body=message_body,
+            from_=from_phone,
+            to=to_phone
+        )
+        
+        print(f"✅ SMS sent to {to_phone}: Video={video_url}, GIA={gia_number}")
+        print(f"   Message SID: {message.sid}")
+        
+    except Exception as e:
+        print(f"❌ SMS ERROR: {e}")
+        print(f"   Failed to send to {to_phone}")
 
 
-if __name__ == '__main__':
+def start_web_server():
+    """Start the web server (can be called from display viewer or standalone)"""
     # Create recordings directory
     os.makedirs('recordings', exist_ok=True)
     
@@ -300,3 +387,7 @@ if __name__ == '__main__':
     
     # Production mode: debug=False, use eventlet async mode
     socketio.run(app, host='0.0.0.0', port=5000, debug=False, allow_unsafe_werkzeug=False)
+
+
+if __name__ == '__main__':
+    start_web_server()
