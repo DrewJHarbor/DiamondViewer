@@ -12,12 +12,12 @@ from flask import Flask, render_template, request, jsonify, send_file
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from src.arduino_controller import ArduinoController
-from dotenv import load_dotenv
-from twilio.rest import Client
-import resend
+# from dotenv import load_dotenv
+#from twilio.rest import Client
+#import resend
 
 # Load environment variables from .env file
-load_dotenv()
+# load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SESSION_SECRET', 'harbor-diamond-viewer-secret')
